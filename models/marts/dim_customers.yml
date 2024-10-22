@@ -1,0 +1,13 @@
+models:
+  - name: dim_customers
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: customer_id
+        data_type: int
+        constraints:
+          - type: not_null
+      - name: customer_name
+        data_type: string
+      
