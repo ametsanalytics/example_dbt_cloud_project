@@ -20,6 +20,7 @@ payments as (
 
 -- cte
 
+-- get paid orders
 paid_order as (
         
         select 
@@ -32,6 +33,7 @@ paid_order as (
         
 ),
 
+-- assign paid orders to customers
 customer_paid_order as (
 
         select 
@@ -49,6 +51,7 @@ customer_paid_order as (
 
  ),
 
+-- add more customer order detail to be used in downstream calculations
 customer_orders as (
             select 
             customers.customer_id,
@@ -62,30 +65,28 @@ customer_orders as (
 
 ),
 
-final as (
+-- new and returning customers
 
-    select
-        customer_paid_order.*,
-        ROW_NUMBER() OVER (ORDER BY customer_paid_order.order_id) as transaction_seq,
-        ROW_NUMBER() OVER (PARTITION BY customer_orders.customer_id ORDER BY customer_paid_order.order_id) as customer_sales_seq,
-        CASE WHEN customer_orders.first_order_date = customer_paid_order.order_placed_at
+-- ltv
+
+nvsr_ltv as (
+
+    select 
+    *,
+    CASE WHEN customer_orders.first_order_date = customer_paid_order.order_placed_at
              THEN 'new'
              ELSE 'return' END as nvsr,
-        x.clv_bad as customer_lifetime_value, --- this can be replaced with a window function???
-        customer_orders.first_order_date as fdos
-    FROM customer_paid_order 
-        left join customer_orders on customer_paid_order.customer_id = customer_orders.customer_id
-        LEFT OUTER JOIN 
-        (
-                select
-                p.order_id,
-                sum(t2.total_amount_paid) as clv_bad
-            from customer_paid_order p
-            left join customer_paid_order t2 on p.customer_id = t2.customer_id and p.order_id >= t2.order_id
-            group by 1
-            order by p.order_id
-        ) x on x.order_id = p.order_id
-        ORDER BY order_id
+    sum(total_amount_paid) over (partition by customer_orders.customer_id order by order_placed_at) ltv
+    
+    from customer_orders
+    left join customer_paid_order on customer_orders.customer_id = customer_paid_order.customer_id
+),
+
+
+final as (
+
+    select * from nvsr_ltv
+    
 )
 
 select * from final
