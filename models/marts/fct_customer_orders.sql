@@ -86,11 +86,11 @@ nvsr_ltv as (
 final as (
 
     select * from nvsr_ltv
-    
+
 )
 
 select * from final
-
+order by order_id
 
 
 
