@@ -123,10 +123,3 @@ select * from final
 
 
 
-
--- logic
-
-
-
-
--- final
