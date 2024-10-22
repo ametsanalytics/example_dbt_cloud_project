@@ -22,5 +22,4 @@
     summarize = false
 ) }}
 
--- 23
--- 87
+-- customer id 23 + 87 should not be there
