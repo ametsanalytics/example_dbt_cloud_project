@@ -1,4 +1,4 @@
---- gerenarted with CodeGen
+--- generated with CodeGen
 
 with source as (
 
