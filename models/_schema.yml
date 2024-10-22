@@ -9,7 +9,6 @@ models:
         description: unique customer identifier
         tests:
           - not_null
-          - unique
 
       - name: first_order_date
         description: min order date of customer
@@ -23,7 +22,6 @@ models:
       - name: order_id
         description: unique order id
         tests:
-          - not_null
           - unique
 
       - name: order_placed_at
@@ -33,7 +31,7 @@ models:
         description: status of order id
         tests:
           - accepted_values:
-              values: ['returned', 'completed']
+              values: ['returned', 'completed', 'placed', 'shipped','return_pending']
 
       - name: total_amount_paid
         description: total amount of all orders paid

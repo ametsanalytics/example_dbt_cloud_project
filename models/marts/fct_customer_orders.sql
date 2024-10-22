@@ -123,6 +123,7 @@ final as (
 )
 
 select * from final
+where order_status is not null
 
 
 
