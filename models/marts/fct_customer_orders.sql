@@ -66,8 +66,7 @@ customer_orders as (
 ),
 
 -- new and returning customers
-
--- ltv
+-- limetime value
 
 nvsr_ltv as (
 
@@ -83,12 +82,11 @@ nvsr_ltv as (
         payment_finalized_date,
         customer_first_name,
         customer_last_name,
-        nvsr,
-        ltv,
-
+-- new and returning customers
     CASE WHEN customer_orders.first_order_date = customer_paid_order.order_placed_at
              THEN 'new'
              ELSE 'return' END as nvsr,
+-- limetime value
     sum(total_amount_paid) over (partition by customer_orders.customer_id order by order_placed_at) ltv
     
     from customer_orders
