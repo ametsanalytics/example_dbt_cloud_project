@@ -8,7 +8,7 @@
 
 with customers as (
 
-    select * from {{ ref('stg_customers') }}
+    select * from {{ ref('dim_customers') }}
 
 ),
 
@@ -48,28 +48,12 @@ customer_paid_order as (
             Orders.order_placed_at,
             Orders.order_status,
             paid_order.total_amount_paid,
-            paid_order.payment_finalized_date,
-            customers.customer_first_name,
-            customers.customer_last_name
+            paid_order.payment_finalized_date
         FROM orders
             left join paid_order ON orders.order_id = paid_order.order_id
             inner join customers on orders.customer_id = customers.customer_id
 
  ),
-
--- add more customer order detail to be used in downstream calculations
-customer_orders as (
-            select 
-            customers.customer_id,
-            min(order_placed_at) as first_order_date,
-            max(order_placed_at) as most_recent_order_date,
-            count(order_id) AS number_of_orders
-        from customers
-        left join Orders
-        on orders.customer_id = customers.customer_id 
-        group by 1
-
-),
 
 -- new and returning customers
 -- limetime value
@@ -77,7 +61,7 @@ customer_orders as (
 nvsr_ltv as (
 
     select 
-        customer_orders. customer_id,
+        customers. customer_id,
         first_order_date,
         most_recent_order_date,
         number_of_orders,
@@ -89,14 +73,14 @@ nvsr_ltv as (
         customer_first_name,
         customer_last_name,
 -- new and returning customers
-    CASE WHEN customer_orders.first_order_date = customer_paid_order.order_placed_at
+    CASE WHEN customers.first_order_date = customer_paid_order.order_placed_at
              THEN 'new'
              ELSE 'return' END as nvsr,
 -- limetime value
-    sum(total_amount_paid) over (partition by customer_orders.customer_id order by order_placed_at) ltv
+    sum(total_amount_paid) over (partition by customers.customer_id order by order_placed_at) ltv
     
-    from customer_orders
-    left join customer_paid_order on customer_orders.customer_id = customer_paid_order.customer_id
+    from customers
+    left join customer_paid_order on customers.customer_id = customer_paid_order.customer_id
 ),
 
 
