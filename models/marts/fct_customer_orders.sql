@@ -72,7 +72,20 @@ customer_orders as (
 nvsr_ltv as (
 
     select 
-    *,
+        customer_orders. customer_id,
+        first_order_date,
+        most_recent_order_date,
+        number_of_orders,
+        order_id,
+        order_placed_at,
+        order_status,
+        total_amount_paid,
+        payment_finalized_date,
+        customer_first_name,
+        customer_last_name,
+        nvsr,
+        ltv,
+
     CASE WHEN customer_orders.first_order_date = customer_paid_order.order_placed_at
              THEN 'new'
              ELSE 'return' END as nvsr,
@@ -85,12 +98,28 @@ nvsr_ltv as (
 
 final as (
 
-    select * from nvsr_ltv
+    select 
+        customer_id,
+        first_order_date,
+        most_recent_order_date,
+        number_of_orders,
+        order_id,
+        order_placed_at,
+        order_status,
+        total_amount_paid,
+        payment_finalized_date,
+        customer_first_name,
+        customer_last_name,
+        nvsr,
+        ltv
+    
+    from nvsr_ltv
+    order by order_id
 
 )
 
 select * from final
-order by order_id
+
 
 
 
