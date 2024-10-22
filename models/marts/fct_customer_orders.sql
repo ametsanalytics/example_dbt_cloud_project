@@ -53,7 +53,7 @@ customer_paid_order as (
             customers.customer_last_name
         FROM orders
             left join paid_order ON orders.order_id = paid_order.order_id
-            left join customers on orders.customer_id = customers.customer_id
+            inner join customers on orders.customer_id = customers.customer_id
 
  ),
 
@@ -118,12 +118,12 @@ final as (
         ltv
     
     from nvsr_ltv
+    where order_id is not null
     order by order_id
 
 )
 
 select * from final
-where order_status is not null
 
 
 
